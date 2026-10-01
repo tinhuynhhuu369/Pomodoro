@@ -2,14 +2,14 @@ import tkinter as tk
 import winsound
 from tkinter import messagebox
 
-WORK_MINUTES = 1
+WORK_MINUTES = 25
 BREAK_MINUTES = 5
 
 MODE_LABELS = {"work": "Làm việc", "break": "Nghỉ"}
 MODE_COLORS = {"work": "#f6d6d0", "break": "#d4ecd9"}  # đỏ nhạt = tập trung, xanh lá nhạt = thư giãn
 
 mode = "work"
-time_left = WORK_MINUTES * 10
+time_left = WORK_MINUTES * 60
 is_running = False
 sessions_completed = 0
 after_id = None  # id của lần gọi root.after đang chờ, để hủy khi tạm dừng/đặt lại

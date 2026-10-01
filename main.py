@@ -1,13 +1,15 @@
 import tkinter as tk
+import winsound
+from tkinter import messagebox
 
-WORK_MINUTES = 25
+WORK_MINUTES = 1
 BREAK_MINUTES = 5
 
 MODE_LABELS = {"work": "Làm việc", "break": "Nghỉ"}
 MODE_COLORS = {"work": "#f6d6d0", "break": "#d4ecd9"}  # đỏ nhạt = tập trung, xanh lá nhạt = thư giãn
 
 mode = "work"
-time_left = WORK_MINUTES * 60
+time_left = WORK_MINUTES * 10
 is_running = False
 sessions_completed = 0
 after_id = None  # id của lần gọi root.after đang chờ, để hủy khi tạm dừng/đặt lại
@@ -66,8 +68,23 @@ def on_session_end():
     time_left = mode_duration(mode)
     update_time_label()
     apply_mode_style()
-    # TODO Bước 4: phát âm thanh + hiện popup thông báo
+    notify()
+    # Chỉ hẹn tick sau khi đóng popup, để popup không bị dồn nếu người dùng chưa kịp bấm OK
     after_id = root.after(1000, tick)
+
+
+def notify():
+    winsound.MessageBeep(winsound.MB_ICONASTERISK)
+    # Đưa cửa sổ lên trên cùng để không bỏ lỡ thông báo khi đang dùng app khác
+    root.attributes("-topmost", True)
+    root.lift()
+    if mode == "break":
+        message = f"Hết giờ làm việc — nghỉ {BREAK_MINUTES} phút nhé"
+    else:
+        message = "Hết giờ nghỉ — quay lại làm việc"
+    messagebox.showinfo("Hết giờ!", message, parent=root)
+    # Tắt topmost sau khi đóng popup, nếu không cửa sổ sẽ đè lên mọi app khác mãi
+    root.attributes("-topmost", False)
 
 
 def start():

@@ -3,6 +3,9 @@ import tkinter as tk
 WORK_MINUTES = 25
 BREAK_MINUTES = 5
 
+MODE_LABELS = {"work": "Làm việc", "break": "Nghỉ"}
+MODE_COLORS = {"work": "#f6d6d0", "break": "#d4ecd9"}  # đỏ nhạt = tập trung, xanh lá nhạt = thư giãn
+
 mode = "work"
 time_left = WORK_MINUTES * 60
 is_running = False
@@ -44,10 +47,27 @@ def tick():
         after_id = root.after(1000, tick)
 
 
+def apply_mode_style():
+    status_label.config(text=MODE_LABELS[mode])
+    color = MODE_COLORS[mode]
+    # Label và Frame không tự lấy màu nền của cửa sổ nên phải đổi từng cái
+    for widget in (root, status_label, time_label, button_frame, sessions_label):
+        widget.config(bg=color)
+
+
 def on_session_end():
-    # Tạm thời chỉ dừng đếm; chuyển phiên tự động sẽ làm ở Bước 3
-    global is_running
-    is_running = False
+    global mode, time_left, sessions_completed, after_id
+    if mode == "work":
+        sessions_completed += 1
+        sessions_label.config(text=f"Số phiên hôm nay: {sessions_completed}")
+        mode = "break"
+    else:
+        mode = "work"
+    time_left = mode_duration(mode)
+    update_time_label()
+    apply_mode_style()
+    # TODO Bước 4: phát âm thanh + hiện popup thông báo
+    after_id = root.after(1000, tick)
 
 
 def start():
@@ -77,7 +97,7 @@ root.title("Đồng hồ Pomodoro")
 root.geometry("320x260")
 root.resizable(False, False)
 
-status_label = tk.Label(root, text="Làm việc", font=("Helvetica", 16))
+status_label = tk.Label(root, text=MODE_LABELS[mode], font=("Helvetica", 16))
 status_label.pack(pady=(20, 0))
 
 time_label = tk.Label(root, text=format_time(time_left), font=("Helvetica", 48))
@@ -97,5 +117,7 @@ reset_button.grid(row=0, column=2, padx=5)
 
 sessions_label = tk.Label(root, text=f"Số phiên hôm nay: {sessions_completed}", font=("Helvetica", 10))
 sessions_label.pack(pady=(20, 0))
+
+apply_mode_style()
 
 root.mainloop()
